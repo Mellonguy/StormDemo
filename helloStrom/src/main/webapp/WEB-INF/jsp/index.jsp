@@ -8,7 +8,7 @@
 </head>
 <body>
 	<c:out value="<xmp>" escapeXml="true"></c:out>
-	<h2>Hello! ${name}</h2>
+
 	<div>JSP version</div>
 </body>
 </html>

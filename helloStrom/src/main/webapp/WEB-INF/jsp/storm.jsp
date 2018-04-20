@@ -1,33 +1,117 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+
 <html>
 <head>
 </head>
 <body>
-<h1>Spring Demo Ajax - Test Case</h1>
-<ul>
-	<li>Spring boot 1.5.2</li>
-	<li>Spring 4.3.6</li>
-	<li>com.fasterxml.jackson 2.8.6</li>
-</ul>
+<h1>SpringBoot & Apache Storm Demo Ajax</h1>
 
+<div id="setInterval">
+시간 간격 : <input name="s_t" id="s_t" type='text' style="text-align: right; width: 50px" /> Sec
+</div> 
+ <br>
+<div id='portalSelect-panel'>
+<br>
+[포털 사이트 선택]
+<p>
+Naver<input name='naver' id='naver' type='checkbox' value='https://www.naver.com'>&nbsp; 
+Daum<input name='daum' id='daum' type='checkbox' value='https://www.daum.net'> &nbsp;
+Nate<input name='nate' id='nate' type='checkbox' value='https://www.nate.com'>&nbsp;
+Zum<input name='zum' id='zum' type='checkbox' value='https://www.zum.com'>&nbsp;
+	
+</div>
+<br>
+<div id='searchWordSelect-panel'>
+
+	[이벤트 대상 Word]
+	<p><input name='searchWord' id='searchWord' type='text'   size=100>&nbsp; 
+	
+</div>
+<br>
+<div id='scopWordSelect-panel'>
+	[이벤트 범위]
+	<p>
+	Main <input name='portalUrl' id='portalUrl' type='checkbox' value='https://www.zum.com'>&nbsp;
+	News <input name='portalUrl' id='portalUrl' type='checkbox' value='https://www.nate.com'>&nbsp;
+</div>
 
 <!-- <p><button onclick="ajaxList();">ajaxList[GET]</button></p>
 <p><button onclick="ajaxListModel();">ajaxListModel[GET, @ModelAttribute]</button></p>
 <p><button onclick="ajaxListNobody();">ajaxListNobody[GET, Not @ResponseBody]</button> <small>@ResponseBody가 없으므로 뷰 리졸버를 찾게됨</small></p> -->
-<p><button onclick="ajaxMap();">ajaxMap[PUT, @RequestBody를 지정할 경우]</button></p>
+<p><button onclick="startReceipt();">시작 </button> &nbsp; <button onclick="stopReceipt();">정지  </button> &nbsp; <input style='border: 0px;text-align: right' type='text' id='txtCount' size=10>
 <!-- <p><button onclick="ajaxMap_Get();">ajaxMap_Get[GET, @RequestBody를 지정할 경우]</button> <small>GET은 요청 바디에 데이터가 존재하지 않음</small></p>
 <p><button onclick="ajaxEntity();">ajaxEntity[POST, ResponseEntity]</button></p>
 <p><button onclick="ajaxEntityNobody();">ajaxEntityNobody[POST, ResponseEntity]</button></p>
 <p><button onclick="ajaxEntityNobodyParam();">ajaxEntityNobodyParam[POST, ResponseEntity+Param]</button></p>
  -->
 <p></p>
-
+<br>
 <div>
 <h3>Response-</h3>
-<div id="response-panel"></div>
+<div id="response-panel">
+.....
+</div>
 </div>
 <script	src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script>
 var _response = $('#response-panel');
+var _myVal;
+var intervalTime = $("#s_t").val() * 1000;
+var timer_is_on = true;
+var count = 0;
+
+
+function convertJson(data){
+	count++;
+	$("#txtCount").val(count);
+	return JSON.stringify(data.data, true, 2);
+}
+
+function responseJson(data){
+	_response.html(convertJson(data));
+}
+
+function responseError(data){
+	_response.html(data.responseText);
+}
+
+
+function startReceipt(){
+	//시작과 동시에 한번 더 초기화하면서 시작, 정지했을경우 초기화하고 다시 시작해야 하기 때문 
+	timer_is_on = true;
+	count =0;
+var i=0;
+	if(timer_is_on){
+		
+		var dataSet = new Object();
+		var selected = [];
+		$('div#portalSelect-panel input[type=checkbox]').each(function(){
+			selected.push( $(this).val());
+		});
+		dataSet.url = selected;
+		_myVal = setInterval(function ajaxMap(){
+						 $.ajax({
+				      	type    : 'POST', // method
+				        url     : 'storm', //PUT 요청은 데이터가 요청 바디에 포함됩니다.
+				        async   : 'true', // true
+				        data    : JSON.stringify(dataSet),
+				        contentType : 'application/json',
+				        //dataType  : [응답 데이터 형식], // 명시하지 않을 경우 자동으로 추측
+				       	success : function(data, status, xhr){ responseJson(data); },
+				       	error   : function(error){ console.log("error", error); responseError(error); }
+				       }) 
+				
+			},1000*$("#s_t").val());
+	}
+}
+
+
+function stopReceipt(){
+	clearTimeout(_myVal);
+	timer_is_on=false;
+	alert("stop");
+}
+
 /* function ajaxList(){
 	var dataSet = new Object();
 	dataSet.username = "kdevkr";
@@ -94,26 +178,7 @@ var _response = $('#response-panel');
 	        }
 	        });
 	} */
-function ajaxMap(){
-    var dataSet = new Object();
-    dataSet.username = "kdevkr";
-    dataSet.password = "kdevpass";
-    $.ajax({
-        type    : 'PUT', // method
-        url     : 'map', // PUT 요청은 데이터가 요청 바디에 포함됩니다.
-        async   : 'true', // true
-        data    : JSON.stringify(dataSet),
-        contentType : 'application/json',
-        //dataType  : [응답 데이터 형식], // 명시하지 않을 경우 자동으로 추측
-        success : function(data, status, xhr){
-        	responseJson(data);
-        },
-        error   : function(error){
-            console.log("error", error);
-            responseError(error);
-        }
-        });
-}
+
 /* function ajaxMap_Get(){
     var dataSet = new Object();
     dataSet.username = "kdevkr";
@@ -195,17 +260,6 @@ function ajaxEntityNobodyParam(){
         });
 } */
 
-function convertJson(data){
-	return JSON.stringify(data, true, 2);
-}
-
-function responseJson(data){
-	_response.html(convertJson(data));
-}
-
-function responseError(data){
-	_response.html(data.responseText);
-}
 </script>
 </body>
 </html>

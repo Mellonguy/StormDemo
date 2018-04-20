@@ -5,7 +5,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -16,59 +20,119 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.stereotype.Service;
 
-public class WebCrawlerServiceImpl {
-	
-	public static String getCurrentData() {
+@Service
+public class WebCrawlerServiceImpl implements WebCrawlerService{
+
+	private String rtString;
+
+
+	/*
+	 * @see com.storm.demo.service.WebCrawlerService#getCurrentData()
+	 */
+	@Override
+	public String getCurrentData() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm:ss");
 		return sdf.format(new Date());
 	}
 
-	public static String crawlerData() throws ClientProtocolException, IOException {
-		//1.가져오기전에 시간 찍기
-		System.out.println("Start Date : "+getCurrentData());
+	/*
+	 * @see com.storm.demo.service.WebCrawlerService#crawlerDataWithHttpString()
+	 */
+	@Override
+	public String crawlerDataWithHttpString(Map<String,String> args) throws ClientProtocolException, IOException {
 
-		//2.가져올 http 주소 셋팅
-		HttpPost http = new HttpPost("https://www.naver.com");
+		String url = args.get("url");
 
-		//3.가져오기를 실행할 클라이언트 객체 생성
+		//가져올 http 주소 셋팅
+		HttpPost http = new HttpPost(url);
+
+		//가져오기를 실행할 클라이언트 객체 생성
 		HttpClient httpClient = HttpClientBuilder.create().build();
 
-		//4.실행 및 실행 데이터를 Response 객체에 담음
+		//실행 및 실행 데이터를 Response 객체에 담음
 		HttpResponse response = httpClient.execute(http);
 
-		//5. Response 받은 데이터 중, DOM 데이터를 가져와 Entity에 담음
+		//Response 받은 데이터 중, DOM 데이터를 가져와 Entity에 담음
 		HttpEntity entity = response.getEntity();
 
-		//6. Charset	을 알아내기위해 DOM의 컨텐트 타입을 가져와 담고 Charset을 가져옴
+		//Charset	을 알아내기위해 DOM의 컨텐트 타입을 가져와 담고 Charset을 가져옴
 		ContentType contentType = ContentType.getOrDefault(entity);
 		Charset charset = contentType.getCharset();
 
-		//7.DOM 데이터를 한 줄씩 읽기위해 Reader에 담음(InputStream / Bufferd 중 선택은 개인취향)
-		 BufferedReader br = new BufferedReader(new InputStreamReader(entity.getContent(), charset));
+		//DOM 데이터를 한 줄씩 읽기위해 Reader에 담음(InputStream / Bufferd 중 선택은 개인취향)
+		BufferedReader br = new BufferedReader(new InputStreamReader(entity.getContent(), charset));
 
-	    // 8. 가져온 DOM 데이터를 담기위한 그릇
-	    StringBuffer sb = new StringBuffer();
+		//가져온 DOM 데이터를 담기위한 그릇
+		StringBuffer sb = new StringBuffer();
 
-	    // 9. DOM 데이터 가져오기
-	    String line = "";
-	    while((line=br.readLine()) != null){
-	    	sb.append(line+"\n");
-	    }
+		//DOM 데이터 가져오기
+		String line = "";
+		while((line=br.readLine()) != null){
+			sb.append(line+"\n");
+		}
 
-	    // 10. 가져온 아름다운 DOM을 보자
-//	    System.out.println(sb.toString());
-
-	    // 11. Jsoup으로 파싱해보자.
-	    Document doc = Jsoup.parse(sb.toString());
-
-	    // 참고 - Jsoup에서 제공하는 Connect 처리
-	    Document doc2 = Jsoup.connect("https://www.naver.com").get();
-
-	    // 12. 얼마나 걸렸나 찍어보자
-//	    System.out.println(" End Date : " + getCurrentData());
-	    
-	    return sb.toString()+" End Date : " + getCurrentData();
+		return sb.toString();
 	}
+
+	/*
+	 * @see com.storm.demo.service.WebCrawlerService#crawlerDataIgnoleHttpString()
+	 */
+	@Override
+	public Document crawlerDataIgnoleHttpDocument(Map<String,String> args) throws ClientProtocolException, IOException {
+
+		String url = args.get("url");
+
+		//Jsoup으로 파싱해보자.
+		Document doc = Jsoup.connect(url).get();
+		return doc;
+	}
+
+	/*
+	 * @see com.storm.demo.service.WebCrawlerService#crawlerDataIgnoleHttpLsit()
+	 */
+	@Override
+	public List<String> crawlerDataIgnoleHttpLsit(Map args) throws ClientProtocolException, IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * @see com.storm.demo.service.WebCrawlerService#crawlerDataIgnoleHttpMap()
+	 */
+	@Override
+	public Map<String, String> crawlerDataIgnoleHttpMap(Map args) throws ClientProtocolException, IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * @see com.storm.demo.service.WebCrawlerService#getToString()
+	 */
+	@Override
+	public String getToString() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*TEST로 하다가 나중에 지우자 return type르 바꾸
+	 * @see com.storm.demo.service.WebCrawlerService#crawlerDataIgnoleHttpString(java.util.Map)
+	 */
+	@Override
+	public String crawlerDataIgnoleHttpString(Map<String, Object> args) throws ClientProtocolException, IOException {
+		String url = String.valueOf(args.get("url"));
+		ArrayList urlList = (ArrayList) args.get("url");
+		Document doc = null;
+		StringBuffer docSB = new StringBuffer();
+	for (Iterator iterator = urlList.iterator(); iterator.hasNext();) {
+		Object object = iterator.next();
+		doc =  Jsoup.connect(object.toString()).get();
+		docSB.append(doc.text());
+	}
+
+		return docSB.toString();
+	}
+
 
 }

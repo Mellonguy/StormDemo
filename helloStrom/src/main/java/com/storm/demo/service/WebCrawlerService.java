@@ -9,6 +9,13 @@
  */
 package com.storm.demo.service;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.client.ClientProtocolException;
+import org.jsoup.nodes.Document;
+
 /**
  * WebCrawlerService.java
  *
@@ -17,6 +24,23 @@ package com.storm.demo.service;
  * @see
  * @since 1.0
  */
-public class WebCrawlerService {
+public interface WebCrawlerService {
+
+	String getCurrentData();
+
+	String crawlerDataWithHttpString(Map<String,String> args) throws ClientProtocolException, IOException;
+
+
+	//test로 쓰고 나중에 지우자.. 중복..
+	String crawlerDataIgnoleHttpString(Map<String,Object> args) throws ClientProtocolException, IOException;
+
+
+	Document crawlerDataIgnoleHttpDocument(Map<String,String> args) throws ClientProtocolException, IOException;
+
+	List<String> crawlerDataIgnoleHttpLsit(Map<String,String> args) throws ClientProtocolException, IOException;
+
+	Map<String,String> crawlerDataIgnoleHttpMap(Map<String,String> args) throws ClientProtocolException, IOException;
+
+	String getToString();
 
 }
