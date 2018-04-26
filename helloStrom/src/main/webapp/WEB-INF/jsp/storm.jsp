@@ -85,9 +85,11 @@ var i=0;
 		
 		var dataSet = new Object();
 		var selected = [];
-		$('div#portalSelect-panel input[type=checkbox]').each(function(){
-			selected.push( $(this).val());
+		$('#portalSelect-panel input:checked').each(function(){
+			//체크된 사이트를 배열에 넣는다.
+			selected.push($(this).val());
 		});
+		
 		dataSet.url = selected;
 		_myVal = setInterval(function ajaxMap(){
 						 $.ajax({

@@ -5,9 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -22,8 +20,11 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 
+import com.storm.demo.example.WebCrawlerSpout;
+import com.storm.demo.example.WebCrawlerTopologyLocal;
+
 @Service
-public class WebCrawlerServiceImpl implements WebCrawlerService{
+public class WebCrawlerServiceImpl implements WebCrawlerService {
 
 	private String rtString;
 
@@ -121,18 +122,10 @@ public class WebCrawlerServiceImpl implements WebCrawlerService{
 	 */
 	@Override
 	public String crawlerDataIgnoleHttpString(Map<String, Object> args) throws ClientProtocolException, IOException {
-		String url = String.valueOf(args.get("url"));
-		ArrayList urlList = (ArrayList) args.get("url");
-		Document doc = null;
-		StringBuffer docSB = new StringBuffer();
-	for (Iterator iterator = urlList.iterator(); iterator.hasNext();) {
-		Object object = iterator.next();
-		doc =  Jsoup.connect(object.toString()).get();
-		docSB.append(doc.text());
+
+		WebCrawlerSpout webCrawlerSpout = new WebCrawlerSpout(args);
+
+		WebCrawlerTopologyLocal topology = new WebCrawlerTopologyLocal();
+		return "";
 	}
-
-		return docSB.toString();
-	}
-
-
 }

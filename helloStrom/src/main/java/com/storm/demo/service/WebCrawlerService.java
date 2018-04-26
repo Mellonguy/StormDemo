@@ -24,7 +24,7 @@ import org.jsoup.nodes.Document;
  * @see
  * @since 1.0
  */
-public interface WebCrawlerService {
+public interface WebCrawlerService  {
 
 	String getCurrentData();
 
