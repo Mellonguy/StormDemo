@@ -14,7 +14,7 @@
 <br>
 [포털 사이트 선택]
 <p>
-Naver<input name='naver' id='naver' type='checkbox' value='https://www.naver.com'>&nbsp; 
+Naver<input name='naver' id='naver' type='checkbox' value='https://www.naver.com' checked=true >&nbsp; 
 Daum<input name='daum' id='daum' type='checkbox' value='https://www.daum.net'> &nbsp;
 Nate<input name='nate' id='nate' type='checkbox' value='https://www.nate.com'>&nbsp;
 Zum<input name='zum' id='zum' type='checkbox' value='https://www.zum.com'>&nbsp;
@@ -81,6 +81,36 @@ function startReceipt(){
 	timer_is_on = true;
 	count =0;
 var i=0;
+
+		
+		var dataSet = new Object();
+		var selected = [];
+		$('#portalSelect-panel input:checked').each(function(){
+			//체크된 사이트를 배열에 넣는다.
+			selected.push($(this).val());
+		});
+		
+		dataSet.url = selected;
+		
+		 $.ajax({
+	     	type    : 'POST', // method
+	       url     : 'storm', //PUT 요청은 데이터가 요청 바디에 포함됩니다.
+	       async   : 'true', // true
+	       data    : JSON.stringify(dataSet),
+	       contentType : 'application/json',
+	       //dataType  : [응답 데이터 형식], // 명시하지 않을 경우 자동으로 추측
+	      	success : function(data, status, xhr){ responseJson(data); },
+	      	error   : function(error){ console.log("error", error); responseError(error); }
+	      }) 
+
+			
+}
+/* 
+function startReceipt(){
+	//시작과 동시에 한번 더 초기화하면서 시작, 정지했을경우 초기화하고 다시 시작해야 하기 때문 
+	timer_is_on = true;
+	count =0;
+var i=0;
 	if(timer_is_on){
 		
 		var dataSet = new Object();
@@ -106,7 +136,7 @@ var i=0;
 			},1000*$("#s_t").val());
 	}
 }
-
+ */
 
 function stopReceipt(){
 	clearTimeout(_myVal);

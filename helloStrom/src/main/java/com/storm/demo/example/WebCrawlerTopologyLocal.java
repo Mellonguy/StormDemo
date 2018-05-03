@@ -1,19 +1,36 @@
 package com.storm.demo.example;
 
-import org.apache.storm.generated.StormTopology;
 import org.apache.storm.topology.TopologyBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.storm.demo.props.StormProps;
 
 public class WebCrawlerTopologyLocal {
 
-	private String spout = "url";
-	private String bolt = "word";
+	@Autowired
+	private WebCrawlerSpout webCrawlerSpout;
 
-	protected StormTopology WebCrawlerTopology(WebCrawlerSpout webCrawlerSpout) {
-		System.out.println("WebCrawlerTopology START >>>>>>>>>>>>>>>>>>>.");
-		TopologyBuilder topologyBuilder = new TopologyBuilder();
-		topologyBuilder.setSpout(spout, webCrawlerSpout,4);
-		topologyBuilder.setBolt(bolt,new WebCrawlerBolt(),8).localOrShuffleGrouping(spout);
+	 @Autowired
+    private StormProps stormProps;
 
+	@Autowired
+	private WebCrawlerBolt webCrawlerBolt;
+
+
+	private String spout = "crawlerSpout";
+	private String bolt = "crawlerBolt";
+
+	protected TopologyBuilder buildTopology() {
+		System.out.println("WebCrawlerTopologyLocal START >>>>>>>>>>>>>>>>>>>.");
+//		TopologyBuilder topologyBuilder = new TopologyBuilder();
+//		Config conf = new Config();
+//		conf.setNumWorkers(stormProps.getTopologyWorkers());
+//        conf.setMaxSpoutPending(stormProps.getTopologyMaxSpoutPending());
+//
+//		topologyBuilder.setSpout(spout, webCrawlerSpout,4);
+//		topologyBuilder.setBolt(bolt,webCrawlerBolt,8).localOrShuffleGrouping(spout);
+//		LocalCluster cluster = new LocalCluster();
+//		cluster.submitTopology(stormProps.getTopologyName(), conf, topologyBuilder.createTopology());
 		return null;
 
 	}

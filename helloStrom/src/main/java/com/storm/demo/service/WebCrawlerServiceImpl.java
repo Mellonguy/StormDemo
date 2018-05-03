@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -16,18 +18,65 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.storm.generated.AlreadyAliveException;
+import org.apache.storm.generated.AuthorizationException;
+import org.apache.storm.generated.InvalidTopologyException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.storm.demo.example.WebCrawlerSpout;
-import com.storm.demo.example.WebCrawlerTopologyLocal;
+import com.storm.demo.props.StormProps;
 
 @Service
 public class WebCrawlerServiceImpl implements WebCrawlerService {
 
-	private String rtString;
+    @Autowired
+    private StormProps stormProps;
 
+	private String spout = "crawlerSpout";
+	private String bolt = "crawlerBolt";
+	private Map<String, Object> _map;
+
+
+	/*TEST로 하다가 나중에 지우자 return type르 바꾸
+	 * @see com.storm.demo.service.WebCrawlerService#crawlerDataIgnoleHttpString(java.util.Map)
+	 */
+	@Override
+	public String crawlerDataIgnoleHttpString(Map<String, Object> dataSet) throws AlreadyAliveException, InvalidTopologyException, AuthorizationException, IllegalArgumentException, IOException{
+		System.out.println("WebCrawlerServiceImpl crawlerDataIgnoleHttpString >>>>>>>>>>>>>>>>>>>> START");
+
+
+        System.out.println("WebCrawlerServiceImpl crawlerDataIgnoleHttpString >>>>>>>>>>>>>>>>>>>>END");
+		return "";
+	}
+
+	/*
+	 * @see com.storm.demo.service.WebCrawlerService#crawlerDataIgnoleHttpMap()
+	 */
+	@Override
+	public List<Object> crawlerDataIgnoleHttpMap(Map args) throws ClientProtocolException, IOException {
+		Document _doc;
+		StringBuffer docSB;
+		List<Object> _listA = null;
+		try {
+			ArrayList urlList = (ArrayList) args.get("url");
+			docSB = new StringBuffer();
+			_listA = new ArrayList<Object>();
+			for (Iterator iterator = urlList.iterator(); iterator.hasNext();) {
+				Object object = iterator.next();
+				_doc =  Jsoup.connect(object.toString()).get();
+				docSB.append(_doc.text());
+				_listA.add(docSB);
+				}
+
+
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+
+		return _listA;
+	}
 
 	/*
 	 * @see com.storm.demo.service.WebCrawlerService#getCurrentData()
@@ -102,11 +151,28 @@ public class WebCrawlerServiceImpl implements WebCrawlerService {
 	/*
 	 * @see com.storm.demo.service.WebCrawlerService#crawlerDataIgnoleHttpMap()
 	 */
-	@Override
-	public Map<String, String> crawlerDataIgnoleHttpMap(Map args) throws ClientProtocolException, IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public Map<String, String> crawlerDataIgnoleHttpMap(Map args) throws ClientProtocolException, IOException {
+//
+//		try {
+//			String url = String.valueOf(_map.get("url"));
+//			ArrayList urlList = (ArrayList) _map.get("url");
+//			docSB = new StringBuffer();
+//			_list = new ArrayList<Object>();
+//			for (Iterator iterator = urlList.iterator(); iterator.hasNext();) {
+//				Object object = iterator.next();
+//				_doc =  Jsoup.connect(object.toString()).get();
+//				docSB.append(_doc.text());
+//				_list.add(docSB);
+//				}
+//
+//		} catch (Exception e) {
+//			// TODO: handle exception
+//		}
+//
+//		return null;
+//	}
+
 
 	/*
 	 * @see com.storm.demo.service.WebCrawlerService#getToString()
@@ -117,15 +183,4 @@ public class WebCrawlerServiceImpl implements WebCrawlerService {
 		return null;
 	}
 
-	/*TEST로 하다가 나중에 지우자 return type르 바꾸
-	 * @see com.storm.demo.service.WebCrawlerService#crawlerDataIgnoleHttpString(java.util.Map)
-	 */
-	@Override
-	public String crawlerDataIgnoleHttpString(Map<String, Object> args) throws ClientProtocolException, IOException {
-
-		WebCrawlerSpout webCrawlerSpout = new WebCrawlerSpout(args);
-
-		WebCrawlerTopologyLocal topology = new WebCrawlerTopologyLocal();
-		return "";
-	}
 }

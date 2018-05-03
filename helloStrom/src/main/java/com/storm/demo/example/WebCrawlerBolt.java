@@ -8,7 +8,10 @@ import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
+import org.apache.storm.tuple.Values;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class WebCrawlerBolt extends BaseRichBolt{
 	protected OutputCollector collector;
 
@@ -17,7 +20,7 @@ public class WebCrawlerBolt extends BaseRichBolt{
         @Override
 		public void declareOutputFields(OutputFieldsDeclarer declarer) {
                // TODO Auto-generated method stub
-        	declarer.declare(new Fields("word"));
+        	declarer.declare(new Fields("crawlerBolt"));
 
         }
 
@@ -38,9 +41,15 @@ public class WebCrawlerBolt extends BaseRichBolt{
 		@Override
 		public void execute(Tuple tuple) {
 			// TODO Auto-generated method stub
-			System.out.println("Bolt start  >>>>>>>>>>");
-			String value = tuple.getStringByField("url");
-			System.out.println("Tuple value is"+value);
+			System.out.println("Bolt start  Bolt startBolt startBolt startBolt startBolt startBolt startBolt startBolt startBolt start>>>>>>>>>>");
+
+			String value = String.valueOf(tuple.getValueByField("crawlerSpout"));
+			String words[] = value.split(" ");
+//			System.out.println("Tuple value is"+value);
+			for (String w : words) {
+				collector.emit(new Values(w));
+			}
+
 		}
 
 }

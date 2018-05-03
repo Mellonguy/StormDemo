@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.http.client.ClientProtocolException;
+import org.apache.storm.generated.AlreadyAliveException;
+import org.apache.storm.generated.AuthorizationException;
+import org.apache.storm.generated.InvalidTopologyException;
 import org.jsoup.nodes.Document;
 
 /**
@@ -30,16 +33,21 @@ public interface WebCrawlerService  {
 
 	String crawlerDataWithHttpString(Map<String,String> args) throws ClientProtocolException, IOException;
 
-
+	/**
+	 * @param object
+	 * @return
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 */
 	//test로 쓰고 나중에 지우자.. 중복..
-	String crawlerDataIgnoleHttpString(Map<String,Object> args) throws ClientProtocolException, IOException;
+	String crawlerDataIgnoleHttpString(Map<String, Object> response) throws AlreadyAliveException, InvalidTopologyException, AuthorizationException, IllegalArgumentException, IOException;
 
 
 	Document crawlerDataIgnoleHttpDocument(Map<String,String> args) throws ClientProtocolException, IOException;
 
 	List<String> crawlerDataIgnoleHttpLsit(Map<String,String> args) throws ClientProtocolException, IOException;
 
-	Map<String,String> crawlerDataIgnoleHttpMap(Map<String,String> args) throws ClientProtocolException, IOException;
+	List<Object> crawlerDataIgnoleHttpMap(Map<String, Object> dataSet) throws ClientProtocolException, IOException;
 
 	String getToString();
 
