@@ -67,10 +67,11 @@ public class StormDemoController {
 		Map<String, Object> response = new HashMap<String, Object>();
 		// 웹사이트를 크롤해서 가져온다
 		List<Object> _list = webCrawlerService.crawlerDataIgnoleHttpMap(dataSet);
+		TopologyBuilder tb = new TopologyBuilder();
 
 		//Topology를 실행시킨다
 		WebCrawlerTopologyLocal webCrawlerTopologyLocal = new WebCrawlerTopologyLocal();
-      	webCrawlerTopologyLocal.webCrawlerTopologyLocal(stormProps, _list);
+      	tb = webCrawlerTopologyLocal.webCrawlerTopologyLocal(stormProps, _list);
 
 
 
@@ -81,7 +82,7 @@ public class StormDemoController {
 //
 
 
-		response.put("data", _list);
+		response.put("data", tb.toString());
 
 		return response;
 	}

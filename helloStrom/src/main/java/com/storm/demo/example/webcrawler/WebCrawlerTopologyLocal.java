@@ -37,7 +37,7 @@ public class WebCrawlerTopologyLocal {
         Utils.sleep(5000);
         cluster.killTopology(stormProps.getTopologyName());
         cluster.shutdown();
-		return null;
+		return topologyBuilder;
 
 	}
 /*        public static void main(String args[]){
