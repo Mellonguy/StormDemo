@@ -1,4 +1,4 @@
-package com.storm.demo.example;
+package com.storm.demo.example.webcrawler;
 
 import java.util.Map;
 
@@ -20,7 +20,7 @@ public class WebCrawlerBolt extends BaseRichBolt{
         @Override
 		public void declareOutputFields(OutputFieldsDeclarer declarer) {
                // TODO Auto-generated method stub
-        	declarer.declare(new Fields("crawlerBolt"));
+        	declarer.declare(new Fields("word"));
 
         }
 
@@ -49,6 +49,7 @@ public class WebCrawlerBolt extends BaseRichBolt{
 			for (String w : words) {
 				collector.emit(new Values(w));
 			}
+			collector.ack(tuple);
 
 		}
 

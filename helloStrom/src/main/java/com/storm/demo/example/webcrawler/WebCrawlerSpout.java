@@ -1,4 +1,4 @@
-package com.storm.demo.example;
+package com.storm.demo.example.webcrawler;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -55,5 +55,12 @@ public class WebCrawlerSpout extends BaseRichSpout {
 	public void declareOutputFields(OutputFieldsDeclarer declarer){
 	     declarer.declare(new Fields("crawlerSpout"));
 	  }
+
+    @Override
+    public void ack(Object msgId) {
+    	System.out.println("OK:"+msgId);
+    }
+
+
 
 }

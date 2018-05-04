@@ -28,12 +28,14 @@ Zum<input name='zum' id='zum' type='checkbox' value='https://www.zum.com'>&nbsp;
 	
 </div>
 <br>
-<div id='scopWordSelect-panel'>
-	[이벤트 범위]
+<div id=selectAlram-panel>
+	[이벤트 알람 대상]
 	<p>
-	Main <input name='portalUrl' id='portalUrl' type='checkbox' value='https://www.zum.com'>&nbsp;
-	News <input name='portalUrl' id='portalUrl' type='checkbox' value='https://www.nate.com'>&nbsp;
+	SMS <input name='sms' id='sms' type='checkbox' value='sms'>&nbsp;
+	Mail <input name='mail' id='mail' type='checkbox' value='mail'>&nbsp;
+	ARS <input name='ars' id='ars' type='checkbox' value='ars'>&nbsp;
 </div>
+
 
 <!-- <p><button onclick="ajaxList();">ajaxList[GET]</button></p>
 <p><button onclick="ajaxListModel();">ajaxListModel[GET, @ModelAttribute]</button></p>
@@ -90,11 +92,16 @@ var i=0;
 			selected.push($(this).val());
 		});
 		
+		$('#selectAlram-panel input:checked').each(function(){
+			//체크된 사이트를 배열에 넣는다.
+			selected.push($(this).val());
+		});
+		
 		dataSet.url = selected;
 		
 		 $.ajax({
 	     	type    : 'POST', // method
-	       url     : 'storm', //PUT 요청은 데이터가 요청 바디에 포함됩니다.
+	       url     : 'startCrawler', //PUT 요청은 데이터가 요청 바디에 포함됩니다.
 	       async   : 'true', // true
 	       data    : JSON.stringify(dataSet),
 	       contentType : 'application/json',
