@@ -28,7 +28,7 @@ Zum<input name='zum' id='zum' type='checkbox' value='https://www.zum.com'>&nbsp;
 	
 </div>
 <br>
-<div id=selectAlram-panel>
+<div id=selectAlarm-panel>
 	[이벤트 알람 대상]
 	<p>
 	SMS <input name='sms' id='sms' type='checkbox' value='sms'>&nbsp;
@@ -86,20 +86,27 @@ var i=0;
 
 		
 		var dataSet = new Object();
-		var selected = [];
+		var urlSelected = [];
+		var alarmSelected = [];
+		
 		$('#portalSelect-panel input:checked').each(function(){
 			//체크된 사이트를 배열에 넣는다.
-			selected.push($(this).val());
+			urlSelected.push($(this).val());
 		});
 		
-		$('#selectAlram-panel input:checked').each(function(){
-			//체크된 사이트를 배열에 넣는다.
-			selected.push($(this).val());
+		$('#selectAlarm-panel input:checked').each(function(){
+			//체크된 일람 방식을 배열에 넣는다.
+			alarmSelected.push($(this).val());
 		});
 		
-		dataSet.url = selected;
+		dataSet.url = urlSelected;
+		dataSet.keyword = $("#searchWord").val(); //입력된 키워드를 담는다. 
+		dataSet.alarm = alarmSelected;
+		dataSet.s_t = $("#s_t").val(); // 크롤링 간격 
 		
-		 $.ajax({
+		console.log(dataSet);
+		
+		  $.ajax({
 	     	type    : 'POST', // method
 	       url     : 'startCrawler', //PUT 요청은 데이터가 요청 바디에 포함됩니다.
 	       async   : 'true', // true

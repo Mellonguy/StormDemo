@@ -59,6 +59,7 @@ public class WebCrawlerServiceImpl implements WebCrawlerService {
 		Document _doc;
 		StringBuffer docSB;
 		List<Object> _listA = null;
+
 		try {
 			ArrayList urlList = (ArrayList) args.get("url");
 			docSB = new StringBuffer();
@@ -66,8 +67,17 @@ public class WebCrawlerServiceImpl implements WebCrawlerService {
 			for (Iterator iterator = urlList.iterator(); iterator.hasNext();) {
 				Object object = iterator.next();
 				_doc =  Jsoup.connect(object.toString()).get();
-				docSB.append(_doc.text());
+
+				docSB.append(_doc.text()); //html의 태그안에 문자열만 가지고 올때 사용
+
+				Elements e1 = _doc.select("div.ah_list.PM_CL_realtimeKeyword_list_base");
+a.https://search.daum.net/search\
+
+//				Elements e1 = _doc.select("div.ah_list.PM_CL_realtimeKeyword_list_base"); // selector를 이용하여 가져온다
+//				docSB.append(e1.text()); //html의 태그안에 문자열만 가지고 올때 사용
+
 				_listA.add(docSB);
+
 				}
 
 

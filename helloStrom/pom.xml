@@ -99,6 +99,13 @@
 		    <artifactId>jsoup</artifactId>
 		    <version>1.11.2</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.5</version>
+		</dependency>
+
 
 <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-to-slf4j -->
 <!-- 아.. 이게 중요하다.. storm1.2 spring boot 에서 slf4j의 context가 맞지 않기때문에 추가해야한다..  -->

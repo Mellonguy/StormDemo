@@ -62,18 +62,16 @@ public class StormDemoController {
 
 	@ResponseBody
 	@RequestMapping(value="startCrawler", produces=MediaType.APPLICATION_JSON_VALUE)
-	public Map<String, Object> startCrawler(@RequestBody Map<String, Object> dataSet) throws ClientProtocolException, IOException, AlreadyAliveException, InvalidTopologyException, AuthorizationException{
+	public Map<String, Object> startCrawler(@RequestBody Map<String, Object> requestDataSet) throws ClientProtocolException, IOException, AlreadyAliveException, InvalidTopologyException, AuthorizationException{
 		System.out.println("StormDemoController >>>>>>>>> START");
 		Map<String, Object> response = new HashMap<String, Object>();
 		// 웹사이트를 크롤해서 가져온다
-		List<Object> _list = webCrawlerService.crawlerDataIgnoleHttpMap(dataSet);
+		List<Object> _list = webCrawlerService.crawlerDataIgnoleHttpMap(requestDataSet);
 		TopologyBuilder tb = new TopologyBuilder();
 
 		//Topology를 실행시킨다
 		WebCrawlerTopologyLocal webCrawlerTopologyLocal = new WebCrawlerTopologyLocal();
-      	tb = webCrawlerTopologyLocal.webCrawlerTopologyLocal(stormProps, _list);
-
-
+      	tb = webCrawlerTopologyLocal.webCrawlerTopologyLocal(stormProps, _list, requestDataSet);
 
 
 //		!!!!!!!!!!!!!!!!!!!!!테스트할때 쓰자@!!!!!!!!!!!!!!!!!
@@ -82,7 +80,7 @@ public class StormDemoController {
 //
 
 
-		response.put("data", tb.toString());
+		response.put("data", _list.toString());
 
 		return response;
 	}
@@ -102,7 +100,7 @@ public class StormDemoController {
 		config.setNumWorkers(3);
 
 		topologyBuilder.setSpout(spout, new WebCrawlerSpout(_list),4);
-		topologyBuilder.setBolt(bolt,new WebCrawlerBolt(),8).shuffleGrouping(spout);
+		topologyBuilder.setBolt(bolt,new WebCrawlerBolt(dataSet),8).shuffleGrouping(spout);
 //		topologyBuilder.setBolt("count",new WebCrawlerWordCountBolt(),12).fieldsGrouping(bolt, new Fields("word"));
 
         LocalCluster cluster = new LocalCluster();

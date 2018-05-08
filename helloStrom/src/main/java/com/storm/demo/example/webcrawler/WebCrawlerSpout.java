@@ -35,8 +35,8 @@ public class WebCrawlerSpout extends BaseRichSpout {
 
 
 	@Override
-	public void open(Map conf,TopologyContext context,SpoutOutputCollector collector){
-	       this.collector = collector;
+	public void open(Map conf,TopologyContext context,SpoutOutputCollector _collector){
+	       this.collector = _collector;
 	  }
 
 	@Override

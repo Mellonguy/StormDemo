@@ -50,6 +50,7 @@ public class WebCrawlerWordCountBolt extends BaseRichBolt{
 	@Override
 	public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
 		// TODO Auto-generated method stub
+
 		this.collector = collector;
 		this.counter = new HashMap<String, Long>();
 
