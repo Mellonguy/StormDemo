@@ -20,6 +20,20 @@ Nate<input name='nate' id='nate' type='checkbox' value='https://www.nate.com'>&n
 Zum<input name='zum' id='zum' type='checkbox' value='https://www.zum.com'>&nbsp;
 	
 </div>
+
+<br>
+<div id='searchColumnSelect-panel'>
+
+	[이벤트 대상 컬럼]
+	<p> 
+	실시간 검색어 <input name='searchColumn1' id=searchColumn1' type='checkbox' value='column1' checked=true >&nbsp; 
+    NEWS <input name='searchColumn2' id='searchColumn2' type='checkbox' value='column2'> &nbsp;
+
+	
+</div>
+<br>
+
+
 <br>
 <div id='searchWordSelect-panel'>
 
@@ -88,6 +102,7 @@ var i=0;
 		var dataSet = new Object();
 		var urlSelected = [];
 		var alarmSelected = [];
+		var columnSelected = [];
 		
 		$('#portalSelect-panel input:checked').each(function(){
 			//체크된 사이트를 배열에 넣는다.
@@ -99,9 +114,17 @@ var i=0;
 			alarmSelected.push($(this).val());
 		});
 		
-		dataSet.url = urlSelected;
+		$('#searchColumnSelect-panel input:checked').each(function(){
+			//체크된 일람 방식을 배열에 넣는다.
+			columnSelected.push($(this).val());
+		});
+
+		
+		
+		dataSet.url = urlSelected; //크롤링할 사이트 선
+		dataSet.column = columnSelected; // 실시간 검색어 , 뉴스 컬럼 선
 		dataSet.keyword = $("#searchWord").val(); //입력된 키워드를 담는다. 
-		dataSet.alarm = alarmSelected;
+		dataSet.alarm = alarmSelected; // 알람 방법 선
 		dataSet.s_t = $("#s_t").val(); // 크롤링 간격 
 		
 		console.log(dataSet);

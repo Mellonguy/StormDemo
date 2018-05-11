@@ -1,6 +1,5 @@
 package com.storm.demo.example.webcrawler;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.storm.spout.SpoutOutputCollector;
@@ -18,14 +17,14 @@ public class WebCrawlerSpout extends BaseRichSpout {
 	/**
 	 *
 	 */
-	public WebCrawlerSpout(List<Object> _list) {
+	public WebCrawlerSpout(Map<String, Object> _map) {
 		super();
-		this.list = _list;
+		this.mapData = _map;
 	}
 
 	private static final long serialVersionUID = 1L;
 	private SpoutOutputCollector collector;
-	private List<Object> list;
+	private Map<String, Object> mapData;
 
       /**
      * @throws IOException
@@ -42,18 +41,19 @@ public class WebCrawlerSpout extends BaseRichSpout {
 	@Override
 	public void nextTuple(){
 
-		System.out.println("WebCrawlerSpout.nextTuple() WebCrawlerSpout.nextTuple() WebCrawlerSpout.nextTuple() WebCrawlerSpout.nextTuple() WebCrawlerSpout.nextTuple() WebCrawlerSpout.nextTuple() >>>>>>>>>  >>>>>>>.. START");
-		for (Object object : list) {
-			this.collector.emit(new Values(object));
-		}
-
-
+		System.out.println("\n WebCrawlerSpout.nextTuple() >>>>>>>>>  >>>>>>>.. START \n");
+//		int i=0;
+//		for (String ent : mapData.keySet()) {
+//		System.out.println(">>>>>>> i >>>>>>>"+ent.toString() +" \n @@@@@@@@@@@@@@@@ \n"+ String.valueOf(mapData.get(ent)) );
+//			this.collector.emit(new Values(ent.toString(), mapData.get(ent)));
+			this.collector.emit(new Values(mapData));
+//		}
 
 	  }
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer){
-	     declarer.declare(new Fields("crawlerSpout"));
+	     declarer.declare(new Fields("crawlerSpout","column","alarm"));
 	  }
 
     @Override

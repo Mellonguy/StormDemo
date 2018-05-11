@@ -19,6 +19,8 @@ import org.apache.storm.generated.AuthorizationException;
 import org.apache.storm.generated.InvalidTopologyException;
 import org.jsoup.nodes.Document;
 
+import clojure.lang.Obj;
+
 /**
  * WebCrawlerService.java
  *
@@ -47,7 +49,7 @@ public interface WebCrawlerService  {
 
 	List<String> crawlerDataIgnoleHttpLsit(Map<String,String> args) throws ClientProtocolException, IOException;
 
-	List<Object> crawlerDataIgnoleHttpMap(Map<String, Object> dataSet) throws ClientProtocolException, IOException;
+	Map<String, Object> crawlerDataIgnoleHttpMap(Map<String, Object> dataSet) throws ClientProtocolException, IOException;
 
 	String getToString();
 

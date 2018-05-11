@@ -11,13 +11,9 @@ package com.storm.demo.web;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.http.client.ClientProtocolException;
-import org.apache.storm.Config;
-import org.apache.storm.LocalCluster;
-import org.apache.storm.StormSubmitter;
 import org.apache.storm.generated.AlreadyAliveException;
 import org.apache.storm.generated.AuthorizationException;
 import org.apache.storm.generated.InvalidTopologyException;
@@ -29,8 +25,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.storm.demo.example.webcrawler.WebCrawlerBolt;
-import com.storm.demo.example.webcrawler.WebCrawlerSpout;
 import com.storm.demo.example.webcrawler.WebCrawlerTopologyLocal;
 import com.storm.demo.props.StormProps;
 import com.storm.demo.service.WebCrawlerService;
@@ -66,12 +60,12 @@ public class StormDemoController {
 		System.out.println("StormDemoController >>>>>>>>> START");
 		Map<String, Object> response = new HashMap<String, Object>();
 		// 웹사이트를 크롤해서 가져온다
-		List<Object> _list = webCrawlerService.crawlerDataIgnoleHttpMap(requestDataSet);
+		Map<String, Object> _map = webCrawlerService.crawlerDataIgnoleHttpMap(requestDataSet);
 		TopologyBuilder tb = new TopologyBuilder();
 
 		//Topology를 실행시킨다
-		WebCrawlerTopologyLocal webCrawlerTopologyLocal = new WebCrawlerTopologyLocal();
-      	tb = webCrawlerTopologyLocal.webCrawlerTopologyLocal(stormProps, _list, requestDataSet);
+		WebCrawlerTopologyLocal topology = new WebCrawlerTopologyLocal();
+      	tb = topology.webCrawlerTopologyLocal(stormProps, _map, requestDataSet);
 
 
 //		!!!!!!!!!!!!!!!!!!!!!테스트할때 쓰자@!!!!!!!!!!!!!!!!!
@@ -79,8 +73,7 @@ public class StormDemoController {
 //		wordCountTopology.wordCountTopology();
 //
 
-
-		response.put("data", _list.toString());
+		response.put("data", _map);
 
 		return response;
 	}
@@ -91,32 +84,8 @@ public class StormDemoController {
 		System.out.println("StormDemoController >>>>>>>>> START");
 		Map<String, Object> response = new HashMap<String, Object>();
 
-		List<Object> _list = webCrawlerService.crawlerDataIgnoleHttpMap(dataSet);
 
-		TopologyBuilder topologyBuilder = new TopologyBuilder();
-		Config config = new Config();
-		config.setDebug(true);
-		config.setMaxTaskParallelism(3);
-		config.setNumWorkers(3);
-
-		topologyBuilder.setSpout(spout, new WebCrawlerSpout(_list),4);
-		topologyBuilder.setBolt(bolt,new WebCrawlerBolt(dataSet),8).shuffleGrouping(spout);
-//		topologyBuilder.setBolt("count",new WebCrawlerWordCountBolt(),12).fieldsGrouping(bolt, new Fields("word"));
-
-        LocalCluster cluster = new LocalCluster();
-        StormSubmitter.submitTopology(stormProps.getTopologyName(), config, topologyBuilder.createTopology());
-
-//        StormSubmitter.submitTopologyWithProgressBar(stormProps.getTopologyName(), config, topologyBuilder.createTopology());
-
-//		테스트할때 쓰자@!!!!!!!!!!!!!!!!!
-//		HelloTopologyLocal helloTopologyLocal = new HelloTopologyLocal();
-//		helloTopologyLocal.helloTopologyLocal();
-
-
-//        cluster.killTopology(stormProps.getTopologyName());
-//        cluster.shutdown();
-
-		response.put("data", cluster);
+		response.put("data", "");
 
 		return response;
 	}

@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,19 +24,12 @@ import org.apache.storm.generated.AuthorizationException;
 import org.apache.storm.generated.InvalidTopologyException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.storm.demo.props.StormProps;
 
 @Service
 public class WebCrawlerServiceImpl implements WebCrawlerService {
 
-    @Autowired
-    private StormProps stormProps;
 
-	private String spout = "crawlerSpout";
-	private String bolt = "crawlerBolt";
 	private Map<String, Object> _map;
 
 
@@ -48,45 +42,153 @@ public class WebCrawlerServiceImpl implements WebCrawlerService {
 
 
         System.out.println("WebCrawlerServiceImpl crawlerDataIgnoleHttpString >>>>>>>>>>>>>>>>>>>>END");
-		return "";
+		return " ";
 	}
 
 	/*
 	 * @see com.storm.demo.service.WebCrawlerService#crawlerDataIgnoleHttpMap()
 	 */
 	@Override
-	public List<Object> crawlerDataIgnoleHttpMap(Map args) throws ClientProtocolException, IOException {
+	public Map<String, Object> crawlerDataIgnoleHttpMap(Map args) throws ClientProtocolException, IOException {
 		Document _doc;
 		StringBuffer docSB;
-		List<Object> _listA = null;
+		Map<String,Object> _mapData = null;
 
 		try {
 			ArrayList urlList = (ArrayList) args.get("url");
 			docSB = new StringBuffer();
-			_listA = new ArrayList<Object>();
+			_mapData = new HashMap<String, Object>();
 			for (Iterator iterator = urlList.iterator(); iterator.hasNext();) {
 				Object object = iterator.next();
 				_doc =  Jsoup.connect(object.toString()).get();
-
-				docSB.append(_doc.text()); //html의 태그안에 문자열만 가지고 올때 사용
-
-				Elements e1 = _doc.select("div.ah_list.PM_CL_realtimeKeyword_list_base");
-a.https://search.daum.net/search\
+				String siteName = "";
 
 //				Elements e1 = _doc.select("div.ah_list.PM_CL_realtimeKeyword_list_base"); // selector를 이용하여 가져온다
 //				docSB.append(e1.text()); //html의 태그안에 문자열만 가지고 올때 사용
-
-				_listA.add(docSB);
+				if("https://www.naver.com".equals(object)){
+					siteName = "naver";
+				}else if("https://www.daum.net".equals(object)){
+					siteName = "daum";
+				}else if("https://www.nate.com".equals(object)){
+					siteName = "nate";
+				}else {
+					siteName = "zum";
+				}
+				_mapData.put(siteName,_doc);//html의 태그안에 문자열만 가지고 올때 사용
 
 				}
 
 
 		} catch (Exception e) {
 			// TODO: handle exception
+			e.printStackTrace();
 		}
 
-		return _listA;
+		return _mapData;
 	}
+
+
+	protected String[] getDivide(String key, String value) throws IOException {
+
+		// 각 사이트별로 실시간 검색어를 찾는 방법이 다르다
+
+		//naver
+		String naver = "span.ah_k";
+
+		//daum
+		String daum = "a.link_issue";
+
+		//nate
+		// daum과 같음
+		String url = "https://www.daum.net";
+		String nate = "a.link_issue";
+
+		//zum
+		String zum = "span.keyword.d_keyword";
+
+		Document _doc;
+		String[] rtSB = null;
+
+		switch (key) {
+		case "naver":
+			_doc =  Jsoup.connect(value).get();
+			rtSB  = (_doc.select(naver).text()).split(" ");
+			break;
+		case "daum":
+			_doc =  Jsoup.connect(value).get();
+			rtSB  = (_doc.select(daum).text()).split(" ");
+			break;
+		case "nate":
+			_doc =  Jsoup.connect(url).get();
+			rtSB  = (_doc.select(nate).text()).split(" ");
+			break;
+		case "zum":
+			_doc =  Jsoup.connect(value).get();
+			rtSB  = (_doc.select(zum).text()).split(" ");
+			break;
+
+		default:
+			break;
+		}
+
+		return rtSB;
+	}
+
+
+	protected String getNews(String key, String value) throws IOException {
+
+		// 각 사이트별로 뉴스 찾는 방법이 다르다
+
+		Document _doc;
+		String rtS = "";
+		switch (key) {
+		case "naver":
+			_doc =  Jsoup.connect("http://news.naver.com").get();
+			rtS  = _doc.text();
+			break;
+		case "daum":
+			_doc =  Jsoup.connect("http://media.daum.net").get();
+			rtS  = _doc.text();
+			break;
+		case "nate":
+			_doc =  Jsoup.connect("http://news.nate.com").get();
+			rtS  = _doc.text();
+			break;
+		case "zum":
+			_doc =  Jsoup.connect("http://news.zum.com").get();
+			rtS  = _doc.text();
+			break;
+
+		default:
+			break;
+		}
+
+		return rtS;
+	}
+
+
+
+
+	protected String getSearchWord(String key, String value) {
+		// TODO Auto-generated method stub
+
+
+		return null;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	/*
 	 * @see com.storm.demo.service.WebCrawlerService#getCurrentData()
