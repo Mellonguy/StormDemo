@@ -1,7 +1,7 @@
 package com.storm.demo.example.webcrawler;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.storm.shade.org.json.simple.JSONArray;
@@ -48,12 +48,13 @@ public class WebCrawlerSpout extends BaseRichSpout {
 	public void nextTuple(){
 
 		System.out.println("\n WebCrawlerSpout.nextTuple() >>>>>>>>>  >>>>>>>.. START \n");
-		JSONArray jsonArray = getRawContents(mapData);
+		JSONObject jo = getRawContents(mapData);
 
-		for (int i = 0; i < jsonArray.size(); i++) {
-			JSONObject jo = (JSONObject) jsonArray.get(i);
-			this.collector.emit(new Values( jo.get("stieName"), jo.get("contents")));
-		}
+//		for (int i = 0; i < jsonArray.size(); i++) {
+//			JSONObject jo = (JSONObject) jsonArray.get(i);
+			this.collector.emit(new Values( jo.get("siteName"), jo.get("contents")));
+			System.out.println("> >> WebCrawlerSpout textTuple >>>>>>>>>>>>>>>>>>>>>> "+ jo.get("siteName"));
+//		}
 
 	  }
 
@@ -67,59 +68,50 @@ public class WebCrawlerSpout extends BaseRichSpout {
     	System.out.println("OK:"+msgId);
     }
 
-	public JSONArray getRawContents(Map request) {
+	public JSONObject getRawContents(Map<String, Object>  request) {
 
-		Document _doc;
-		StringBuffer docSB;
-		Map<String,Object> _mapData = null;
 		JSONArray jsonArray = new JSONArray();
 		JSONObject jsonobject = new JSONObject();
 
 		try {
-			ArrayList urlList = (ArrayList) request.get("url");
-			docSB = new StringBuffer();
-			_mapData = new HashMap<String, Object>();
-//			for (Iterator iterator = urlList.iterator(); iterator.hasNext();) {
-//				Object object = iterator.next();
-////				_doc =  Jsoup.connect(object.toString()).get();
+			List<String> urlList = (ArrayList<String>)request.get("url");
+			for (int i = 0; i < urlList.size(); i++) {
+
+				System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ "+ urlList.get(i));
 
 				String name = "";
-				Object contents;
-
-//				Elements e1 = _doc.select("div.ah_list.PM_CL_realtimeKeyword_list_base"); // selector를 이용하여 가져온다
-//				docSB.append(e1.text()); //html의 태그안에 문자열만 가지고 올때 사용
-				if("https://www.naver.com".equals(urlList.get(0).toString())){
+				Document contents = null;
+				String url = urlList.get(i);
+				if("https://www.naver.com".equals(url)){
 					name = "naver";
 //					contents = getTrends("naver", object.toString()); // 실검
-					contents = Jsoup.connect(urlList.get(0).toString()).get();
-				}else if("https://www.daum.net".equals(urlList.get(0).toString())){
+					contents = Jsoup.connect(url).get();
+				}else if("https://www.daum.net".equals(url)){
 					name = "daum";
 //					contents = getTrends("daum", object.toString());// 실검
-					contents = Jsoup.connect(urlList.get(0).toString()).get();
-				}else if("https://www.nate.com".equals(urlList.get(0).toString())){
+					contents = Jsoup.connect(url).get();
+				}else if("https://www.nate.com".equals(url)){
 					name = "nate";
 //					contents = getTrends("nate", object.toString()); // 실검
-					contents = Jsoup.connect(urlList.get(0).toString()).get();
+					contents = Jsoup.connect(url).get();
 				}else {
 					name = "zum";
 //					contents = getTrends("zum", object.toString()); // 실검
-					contents = Jsoup.connect(urlList.get(0).toString()).get();
+					contents = Jsoup.connect(url).get();
 				}
 
 //				_mapData.put(name,contents);//html의 태그안에 문자열만 가지고 올때 사용
 				jsonobject.put("siteName", name);
 				jsonobject.put("contents", contents);
 
-				System.out.println("> >> jsonobject >> "+ jsonobject.get("siteName"));
-//				}
-
-			jsonArray.add(jsonobject);
+			}
+//			jsonArray.add(jsonobject);
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
 		}
 
-		return jsonArray;
+		return jsonobject;
 	}
 
 

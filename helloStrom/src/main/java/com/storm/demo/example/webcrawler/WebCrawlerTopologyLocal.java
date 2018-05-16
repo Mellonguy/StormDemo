@@ -1,10 +1,13 @@
 package com.storm.demo.example.webcrawler;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.topology.TopologyBuilder;
+import org.apache.storm.tuple.Fields;
 import org.apache.storm.utils.Utils;
 
 import com.storm.demo.props.StormProps;
@@ -32,9 +35,12 @@ public class WebCrawlerTopologyLocal {
 	public TopologyBuilder webCrawlerTopologyLocal(StormProps stormProps ,  Map<String, Object> requestDataSet) {
 		System.out.println("WebCrawlerTopologyLocal START >>>>>>>>>>>>>>>>>>>.");
 
+		int tickTupleFreqSecs = 1;
+
 		TopologyBuilder topologyBuilder = new TopologyBuilder();
 		Config config = new Config();
 		config.setDebug(false);
+		config.put(Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, tickTupleFreqSecs);
 //		config.setMaxTaskParallelism(3);
 //		config.setNumWorkers(3);
 
@@ -42,18 +48,25 @@ public class WebCrawlerTopologyLocal {
 		topologyBuilder.setSpout(spout, new WebCrawlerSpout(requestDataSet),3);
 
 
-		// 실검/ 뉴스여부에 따라
-		// 실검
-		if("trend".equals(requestDataSet.get("Column"))) {
-			topologyBuilder.setBolt(boltTrend, new WebCrawlerBolt_Trend(requestDataSet)).shuffleGrouping(spout);
+		List<String> columnList = (ArrayList<String>) requestDataSet.get("Column");
+
+
+		for (int i = 0; i < columnList.size(); i++) {
+
+System.out.println("webCrawlerTopologyLocal ==========================================="+ columnList.get(i));
+			// 실검/ 뉴스여부에 따라
+			// 실검
+			if("trend".equals(columnList.get(i))) {
+				topologyBuilder.setBolt(boltTrend, new WebCrawlerBolt_Trend(),2).fieldsGrouping(spout, new Fields("siteName"));
+			}else if("news".equals(columnList.get(i))) {
+				// 뉴스
+				topologyBuilder.setBolt(boltNews, new WebCrawlerBolt_News(),2).fieldsGrouping(spout, new Fields("siteName"));
+			}
+
+
 		}
 
-		// 뉴스
-		if("news".equals(requestDataSet.get("Column"))) {
-			topologyBuilder.setBolt(boltNews, new WebCrawlerBolt_News(requestDataSet)).shuffleGrouping(spout);
-		}
-
-		//알람방법 여부에 따
+				//알람방법 여부에 따
 
 
 
@@ -77,22 +90,7 @@ public class WebCrawlerTopologyLocal {
 		 * 키워드 :
 		 * 알람 : sms, email, ars
 		 *
-		 *  1 --->    2     ---->  3
-		 * spout |- naverBolt  -|
-		 *       |              |- SMS   -|
-		 *       |-  daumBolt  -|         |
-		 *       |              |- Email -|
-		 *       |-  nateBolt  -|         |
-		 *       |              |- ARS   -|
-		 *       |-  zumBolt   -|
-		 *                      |- wordCount
 		 */
-
-
-		// Bolt 설정 1. potal 수집
-		topologyBuilder.setBolt(boltPortal, new WebCrawlerBolt_Trend(requestDataSet),6).shuffleGrouping(spout);
-
-
 		// Bolt 설정 2. 알람 방법 수집
 //		topologyBuilder.setBolt(boltNaver, new WebCrawlerBolt_Naver(requestDataSet)).fieldsGrouping(boltPortal, new Fields("siteName"));
 
