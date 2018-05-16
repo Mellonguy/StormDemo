@@ -26,8 +26,8 @@ Zum<input name='zum' id='zum' type='checkbox' value='https://www.zum.com'>&nbsp;
 
 	[이벤트 대상 컬럼]
 	<p> 
-	실시간 검색어 <input name='searchColumn1' id=searchColumn1' type='checkbox' value='column1' checked=true >&nbsp; 
-    NEWS <input name='searchColumn2' id='searchColumn2' type='checkbox' value='column2'> &nbsp;
+	실시간 검색어 <input name='trend' id='trend' type='checkbox' value='trend' checked=true >&nbsp; 
+    NEWS <input name='news' id='news' type='checkbox' value='news'> &nbsp;
 
 	
 </div>
@@ -122,7 +122,7 @@ var i=0;
 		
 		
 		dataSet.url = urlSelected; //크롤링할 사이트 선
-		dataSet.column = columnSelected; // 실시간 검색어 , 뉴스 컬럼 선
+		dataSet.Column = columnSelected; // 실시간 검색어 , 뉴스 컬럼 선
 		dataSet.keyword = $("#searchWord").val(); //입력된 키워드를 담는다. 
 		dataSet.alarm = alarmSelected; // 알람 방법 선
 		dataSet.s_t = $("#s_t").val(); // 크롤링 간격 

@@ -13,33 +13,51 @@ public class WebCrawlerTopologyLocal {
 
 	private String spout = "crawlerSpout";
 
+	private String boltTrend = "bolt_trend";
+	private String boltNews = "bolt_news";
+
 	private String boltPortal = "crawlerBolt_Portal";
-	private String boltNaver = "crawlerBolt_Naver";
-	private String boltDaum = "crawlerBolt_Daum";
-	private String boltZum = "crawlerBolt_Zum";
-	private String boltNate = "crawlerBolt_Nate";
+
 
 	private String boltSMS = "crawlerBolt_SMS";
 	private String boltEMAIL = "crawlerBolt_EMAIL";
 	private String boltARS = "crawlerBolt_ARS";
 
-	private String bolt = "crawlerBolt";
+
 
 	private String countBolt = "crawlerCountBolt";
     private String REPORT_BOLT_ID = "report-bolt";
 
     private int sleepTime = 1000;
-	public TopologyBuilder webCrawlerTopologyLocal(StormProps stormProps , Map<String, Object> _map, Map<String, Object> requestDataSet) {
+	public TopologyBuilder webCrawlerTopologyLocal(StormProps stormProps ,  Map<String, Object> requestDataSet) {
 		System.out.println("WebCrawlerTopologyLocal START >>>>>>>>>>>>>>>>>>>.");
 
 		TopologyBuilder topologyBuilder = new TopologyBuilder();
 		Config config = new Config();
 		config.setDebug(false);
-		config.setMaxTaskParallelism(3);
-		config.setNumWorkers(3);
+//		config.setMaxTaskParallelism(3);
+//		config.setNumWorkers(3);
 
 		// Spout 설
-		topologyBuilder.setSpout(spout, new WebCrawlerSpout(_map));
+		topologyBuilder.setSpout(spout, new WebCrawlerSpout(requestDataSet),3);
+
+
+		// 실검/ 뉴스여부에 따라
+		// 실검
+		if("trend".equals(requestDataSet.get("Column"))) {
+			topologyBuilder.setBolt(boltTrend, new WebCrawlerBolt_Trend(requestDataSet)).shuffleGrouping(spout);
+		}
+
+		// 뉴스
+		if("news".equals(requestDataSet.get("Column"))) {
+			topologyBuilder.setBolt(boltNews, new WebCrawlerBolt_News(requestDataSet)).shuffleGrouping(spout);
+		}
+
+		//알람방법 여부에 따
+
+
+
+
 //		topologyBuilder.setBolt(bolt, new WebCrawlerBolt(requestDataSet)).shuffleGrouping(spout);
 //		topologyBuilder.setBolt(countBolt, new WebCrawlerWordCountBolt()).fieldsGrouping(bolt, new Fields("keyword"));
 
@@ -72,7 +90,7 @@ public class WebCrawlerTopologyLocal {
 
 
 		// Bolt 설정 1. potal 수집
-		topologyBuilder.setBolt(boltPortal, new WebCrawlerBolt_Portal(requestDataSet)).shuffleGrouping(spout);
+		topologyBuilder.setBolt(boltPortal, new WebCrawlerBolt_Trend(requestDataSet),6).shuffleGrouping(spout);
 
 
 		// Bolt 설정 2. 알람 방법 수집

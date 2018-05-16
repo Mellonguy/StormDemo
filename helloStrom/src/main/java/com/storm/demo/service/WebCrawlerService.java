@@ -10,16 +10,12 @@
 package com.storm.demo.service;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.http.client.ClientProtocolException;
-import org.apache.storm.generated.AlreadyAliveException;
-import org.apache.storm.generated.AuthorizationException;
-import org.apache.storm.generated.InvalidTopologyException;
-import org.jsoup.nodes.Document;
+import org.apache.storm.shade.org.json.simple.JSONArray;
+import org.apache.storm.shade.org.json.simple.JSONObject;
 
-import clojure.lang.Obj;
+
 
 /**
  * WebCrawlerService.java
@@ -31,9 +27,7 @@ import clojure.lang.Obj;
  */
 public interface WebCrawlerService  {
 
-	String getCurrentData();
 
-	String crawlerDataWithHttpString(Map<String,String> args) throws ClientProtocolException, IOException;
 
 	/**
 	 * @param object
@@ -41,16 +35,14 @@ public interface WebCrawlerService  {
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 */
-	//test로 쓰고 나중에 지우자.. 중복..
-	String crawlerDataIgnoleHttpString(Map<String, Object> response) throws AlreadyAliveException, InvalidTopologyException, AuthorizationException, IllegalArgumentException, IOException;
+	//RAW 컨츠를 가지고 오자
+	JSONArray getRawContents(Map request);
 
+	// 각 사이트별 실시간 검색 조회
+	JSONObject getTrendsContents(JSONObject request);
 
-	Document crawlerDataIgnoleHttpDocument(Map<String,String> args) throws ClientProtocolException, IOException;
+	// 각 사이트별 뉴스 검색
+	JSONObject getNewsContents(JSONObject request) throws  IOException;
 
-	List<String> crawlerDataIgnoleHttpLsit(Map<String,String> args) throws ClientProtocolException, IOException;
-
-	Map<String, Object> crawlerDataIgnoleHttpMap(Map<String, Object> dataSet) throws ClientProtocolException, IOException;
-
-	String getToString();
 
 }

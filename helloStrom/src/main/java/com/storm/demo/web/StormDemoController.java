@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.storm.demo.example.webcrawler.WebCrawlerTopologyLocal;
 import com.storm.demo.props.StormProps;
-import com.storm.demo.service.WebCrawlerService;
 
 /**
  * StromDemoController.java
@@ -40,13 +39,9 @@ import com.storm.demo.service.WebCrawlerService;
 @Controller
 public class StormDemoController {
 
-	private String spout = "crawlerSpout";
-	private String bolt = "crawlerBolt";
 
     @Autowired
     private StormProps stormProps;
-	@Autowired
-	private WebCrawlerService webCrawlerService;
 
 
 	@RequestMapping(value="/")
@@ -60,12 +55,12 @@ public class StormDemoController {
 		System.out.println("StormDemoController >>>>>>>>> START");
 		Map<String, Object> response = new HashMap<String, Object>();
 		// 웹사이트를 크롤해서 가져온다
-		Map<String, Object> _map = webCrawlerService.crawlerDataIgnoleHttpMap(requestDataSet);
+//		Map<String, Object> _map = webCrawlerService.crawlerDataIgnoleHttpMap(requestDataSet);
 		TopologyBuilder tb = new TopologyBuilder();
 
 		//Topology를 실행시킨다
 		WebCrawlerTopologyLocal topology = new WebCrawlerTopologyLocal();
-      	tb = topology.webCrawlerTopologyLocal(stormProps, _map, requestDataSet);
+      	tb = topology.webCrawlerTopologyLocal(stormProps, requestDataSet);
 
 
 //		!!!!!!!!!!!!!!!!!!!!!테스트할때 쓰자@!!!!!!!!!!!!!!!!!
@@ -73,7 +68,7 @@ public class StormDemoController {
 //		wordCountTopology.wordCountTopology();
 //
 
-		response.put("data", _map);
+		response.put("data", response);
 
 		return response;
 	}
