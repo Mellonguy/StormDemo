@@ -7,7 +7,6 @@ import java.util.Map;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.topology.TopologyBuilder;
-import org.apache.storm.tuple.Fields;
 import org.apache.storm.utils.Utils;
 
 import com.storm.demo.props.StormProps;
@@ -16,10 +15,10 @@ public class WebCrawlerTopologyLocal {
 
 	private String spout = "crawlerSpout";
 
-	private String boltTrend = "bolt_trend";
-	private String boltNews = "bolt_news";
+	private String boltTrend = "boltTrend";
+	private String boltNews = "boltNews";
 
-	private String boltPortal = "crawlerBolt_Portal";
+	private String boltSearchWord = "boltSearchWord";
 
 
 	private String boltSMS = "crawlerBolt_SMS";
@@ -31,51 +30,62 @@ public class WebCrawlerTopologyLocal {
 	private String countBolt = "crawlerCountBolt";
     private String REPORT_BOLT_ID = "report-bolt";
 
-    private int sleepTime = 1000;
+    private int sleepTime = 1;
 	public TopologyBuilder webCrawlerTopologyLocal(StormProps stormProps ,  Map<String, Object> requestDataSet) {
-		System.out.println("WebCrawlerTopologyLocal START >>>>>>>>>>>>>>>>>>>.");
 
-		int tickTupleFreqSecs = 1;
+		int tickTupleFreqSecs = 5;
 
 		TopologyBuilder topologyBuilder = new TopologyBuilder();
 		Config config = new Config();
 		config.setDebug(false);
-		config.put(Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, tickTupleFreqSecs);
-//		config.setMaxTaskParallelism(3);
-//		config.setNumWorkers(3);
-
-		// Spout 설
-		topologyBuilder.setSpout(spout, new WebCrawlerSpout(requestDataSet),3);
+//		config.put(Config.TOPOLOGY_SUBPROCESS_TIMEOUT_SECS, tickTupleFreqSecs);
+//		config.setMaxSpoutPending(1000);
+		// Spout 시작
+		System.out.println("1. webCrawlerTopologyLocal spout 시작 ===========>");
+		topologyBuilder.setSpout(spout, new WebCrawlerSpout(requestDataSet),2);
 
 
 		List<String> columnList = (ArrayList<String>) requestDataSet.get("Column");
 
-
 		for (int i = 0; i < columnList.size(); i++) {
-
-System.out.println("webCrawlerTopologyLocal ==========================================="+ columnList.get(i));
 			// 실검/ 뉴스여부에 따라
 			// 실검
 			if("trend".equals(columnList.get(i))) {
-				topologyBuilder.setBolt(boltTrend, new WebCrawlerBolt_Trend(),2).fieldsGrouping(spout, new Fields("siteName"));
-			}else if("news".equals(columnList.get(i))) {
-				// 뉴스
-				topologyBuilder.setBolt(boltNews, new WebCrawlerBolt_News(),2).fieldsGrouping(spout, new Fields("siteName"));
-			}
+				System.out.println("2-1. webCrawlerTopologyLocal 트렌드 bolt 시작 ===========>");
+				topologyBuilder.setBolt(boltTrend, new WebCrawlerBolt_Trend(),4).shuffleGrouping(spout);
 
+				System.out.println("3-1. webCrawlerTopologyLocal 서치 트렌드  워드 bolt 시작 ===========>");
+				topologyBuilder.setBolt(boltSearchWord, new WebCrawlerBoltSearchWord(requestDataSet),1).shuffleGrouping(boltTrend);
+			}else if("news".equals(columnList.get(i))) {
+				System.out.println("2-2. webCrawlerTopologyLocal 뉴스  bolt 시작 ===========>");
+				topologyBuilder.setBolt(boltNews, new WebCrawlerBolt_News(),4).shuffleGrouping(spout);
+
+				System.out.println("3-2. webCrawlerTopologyLocal 서치 뉴스  워드 bolt 시작 ===========>");
+				topologyBuilder.setBolt(boltSearchWord, new WebCrawlerBoltSearchWord(requestDataSet),1).shuffleGrouping(boltNews);
+			}
 
 		}
 
-				//알람방법 여부에 따
+		//알람방법 여부에 따라
+		List<String> alaramList = (ArrayList<String>) requestDataSet.get("alarm");
+		for (int i = 0; i < alaramList.size(); i++) {
+			// 알람리스트
+			if("sms".equals(alaramList.get(i))) {
+				System.out.println("4-1. webCrawlerTopologyLocal 알람 SMS bolt 시작 ===========>");
+				topologyBuilder.setBolt(boltSMS, new WebCrawlerBolt_SMS(),8).shuffleGrouping(boltSearchWord);
+//				topologyBuilder.setBolt(boltSMS+"2", new WebCrawlerBolt_SMS(),1).shuffleGrouping("boltSearchWord2");
+			}else if("mail".equals(alaramList.get(i))) {
+				System.out.println("4-2. webCrawlerTopologyLocal 알람 Email bolt 시작 ===========>");
+				topologyBuilder.setBolt(boltEMAIL, new WebCrawlerBolt_Email(),8).shuffleGrouping(boltSearchWord);
+			}else {
+				System.out.println("4-3. webCrawlerTopologyLocal 알람  ARS bolt 시작 ===========>");
+				topologyBuilder.setBolt(boltARS, new WebCrawlerBolt_Ars(),8).shuffleGrouping(boltSearchWord);
+			}
 
-
-
-
-//		topologyBuilder.setBolt(bolt, new WebCrawlerBolt(requestDataSet)).shuffleGrouping(spout);
+			}
 //		topologyBuilder.setBolt(countBolt, new WebCrawlerWordCountBolt()).fieldsGrouping(bolt, new Fields("keyword"));
 
 
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+requestDataSet.get("s_t"));
 
 		if(requestDataSet.get("s_t") != null && requestDataSet.get("s_t") != "") {
 			sleepTime = Integer.parseInt((String) requestDataSet.get("s_t"));
@@ -85,35 +95,18 @@ System.out.println("webCrawlerTopologyLocal ====================================
 		}
 
 
-		/**
-		 * 사이트 : naver , daum , nate, zum
-		 * 키워드 :
-		 * 알람 : sms, email, ars
-		 *
-		 */
-		// Bolt 설정 2. 알람 방법 수집
-//		topologyBuilder.setBolt(boltNaver, new WebCrawlerBolt_Naver(requestDataSet)).fieldsGrouping(boltPortal, new Fields("siteName"));
-
-
-//		List<String> _listAlarm = (List<String>) requestDataSet.get("alarm");
-//		for (String listUrl : _listAlarm) {
-//			if("sms".equals(listUrl)){
-//				topologyBuilder.setBolt(boltSMS, new WebCrawlerBolt_SMS(requestDataSet)).shuffleGrouping(spout);
-//			}else if("email".equals(listUrl)){
-//				topologyBuilder.setBolt(boltEMAIL, new WebCrawlerBolt_Email(requestDataSet)).shuffleGrouping(spout);
-//			}else {
-//				topologyBuilder.setBolt(boltARS, new WebCrawlerBolt_Ars(requestDataSet)).shuffleGrouping(spout);
-//			}
-//		}
 
 
 //		topologyBuilder.setBolt(REPORT_BOLT_ID, new ReportBolt()).globalGrouping(countBolt); // CountBolt -> ReportBolt
 
         LocalCluster cluster = new LocalCluster();
         cluster.submitTopology(stormProps.getTopologyName(), config, topologyBuilder.createTopology());
-        Utils.sleep(sleepTime);
-//        cluster.killTopology(stormProps.getTopologyName());
+        Utils.sleep(1000);
+        try { Thread.sleep(1000*sleepTime); } catch (InterruptedException e) { } // waiting 10s
+        cluster.killTopology(stormProps.getTopologyName());
 //        cluster.shutdown();
+
+
 		return topologyBuilder;
 
 	}

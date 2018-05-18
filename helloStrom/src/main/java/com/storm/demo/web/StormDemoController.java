@@ -60,7 +60,8 @@ public class StormDemoController {
 
 		//Topology를 실행시킨다
 		WebCrawlerTopologyLocal topology = new WebCrawlerTopologyLocal();
-      	tb = topology.webCrawlerTopologyLocal(stormProps, requestDataSet);
+		TopologyBuilder a = new TopologyBuilder();
+      	a = topology.webCrawlerTopologyLocal(stormProps, requestDataSet);
 
 
 //		!!!!!!!!!!!!!!!!!!!!!테스트할때 쓰자@!!!!!!!!!!!!!!!!!
@@ -68,7 +69,9 @@ public class StormDemoController {
 //		wordCountTopology.wordCountTopology();
 //
 
-		response.put("data", response);
+
+
+      	response.put("data",a.toString());
 
 		return response;
 	}

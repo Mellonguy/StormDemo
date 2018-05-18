@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.storm.shade.org.json.simple.JSONArray;
-import org.apache.storm.shade.org.json.simple.JSONObject;
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichSpout;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Values;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.context.annotation.Configuration;
@@ -46,20 +47,28 @@ public class WebCrawlerSpout extends BaseRichSpout {
 
 	@Override
 	public void nextTuple(){
+		System.out.println( "===============WebCrawlerSpout nextTuple===============");
+		JSONArray ja = getRawContents(mapData);
+		JSONObject jo;
 
-		System.out.println("\n WebCrawlerSpout.nextTuple() >>>>>>>>>  >>>>>>>.. START \n");
-		JSONObject jo = getRawContents(mapData);
+		for (int i = 0; i < ja.length(); i++) {
 
-//		for (int i = 0; i < jsonArray.size(); i++) {
-//			JSONObject jo = (JSONObject) jsonArray.get(i);
+			try {
+				jo = ja.getJSONObject(i);
+
 			this.collector.emit(new Values( jo.get("siteName"), jo.get("contents")));
-			System.out.println("> >> WebCrawlerSpout textTuple >>>>>>>>>>>>>>>>>>>>>> "+ jo.get("siteName"));
-//		}
+			System.out.println("3. WebCrawlerSpout nextTuple >>>>>>>>>>>>>>>>>>>>>> "+ jo.get("siteName"));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 	  }
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer){
+		System.out.println( "===============WebCrawlerSpout declareOutputFields===============");
 	     declarer.declare(new Fields("siteName","contents"));
 	  }
 
@@ -68,17 +77,17 @@ public class WebCrawlerSpout extends BaseRichSpout {
     	System.out.println("OK:"+msgId);
     }
 
-	public JSONObject getRawContents(Map<String, Object>  request) {
+	public JSONArray getRawContents(Map<String, Object>  request) {
 
 		JSONArray jsonArray = new JSONArray();
-		JSONObject jsonobject = new JSONObject();
+		JSONObject jsonobject  = null;
 
 		try {
 			List<String> urlList = (ArrayList<String>)request.get("url");
 			for (int i = 0; i < urlList.size(); i++) {
 
-				System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ "+ urlList.get(i));
-
+				System.out.println("1. @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ "+ urlList.get(i));
+				jsonobject = new JSONObject();
 				String name = "";
 				Document contents = null;
 				String url = urlList.get(i);
@@ -103,15 +112,16 @@ public class WebCrawlerSpout extends BaseRichSpout {
 //				_mapData.put(name,contents);//html의 태그안에 문자열만 가지고 올때 사용
 				jsonobject.put("siteName", name);
 				jsonobject.put("contents", contents);
-
+				System.out.println("2. getRawContents >>>  jsonobject >>> siteName >>>"+jsonobject.get("siteName"));
+				jsonArray.put(jsonobject);
 			}
-//			jsonArray.add(jsonobject);
+
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
 		}
 
-		return jsonobject;
+		return jsonArray;
 	}
 
 

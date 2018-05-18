@@ -17,7 +17,7 @@
 Naver<input name='naver' id='naver' type='checkbox' value='https://www.naver.com' checked=true >&nbsp; 
 Daum<input name='daum' id='daum' type='checkbox' value='https://www.daum.net'> &nbsp;
 Nate<input name='nate' id='nate' type='checkbox' value='https://www.nate.com'>&nbsp;
-Zum<input name='zum' id='zum' type='checkbox' value='https://www.zum.com'>&nbsp;
+Zum<input name='zum' id='zum' type='checkbox' value='http://zum.com'>&nbsp;
 	
 </div>
 
@@ -123,7 +123,7 @@ var i=0;
 		
 		dataSet.url = urlSelected; //크롤링할 사이트 선
 		dataSet.Column = columnSelected; // 실시간 검색어 , 뉴스 컬럼 선
-		dataSet.keyword = $("#searchWord").val(); //입력된 키워드를 담는다. 
+		dataSet.searchWord = $("#searchWord").val(); //입력된 키워드를 담는다. 
 		dataSet.alarm = alarmSelected; // 알람 방법 선
 		dataSet.s_t = $("#s_t").val(); // 크롤링 간격 
 		
