@@ -20,15 +20,11 @@ public class WebCrawlerTopologyLocal {
 
 	private String boltSearchWord = "boltSearchWord";
 
-
 	private String boltSMS = "crawlerBolt_SMS";
 	private String boltEMAIL = "crawlerBolt_EMAIL";
 	private String boltARS = "crawlerBolt_ARS";
 
-
-
-	private String countBolt = "crawlerCountBolt";
-    private String REPORT_BOLT_ID = "report-bolt";
+	private int number = 0;
 
     private int sleepTime = 1;
 	public TopologyBuilder webCrawlerTopologyLocal(StormProps stormProps ,  Map<String, Object> requestDataSet) {
@@ -46,43 +42,49 @@ public class WebCrawlerTopologyLocal {
 
 
 		List<String> columnList = (ArrayList<String>) requestDataSet.get("Column");
+		System.out.println("columnList.size() >>>>>>>>>>>>>>>>>>"+ columnList.size());
+		if( columnList.size() > 0 ) {
+			for (int i = 0; i < columnList.size(); i++) {
+				// 실검/ 뉴스여부에 따라
+				// 실검
+				if("trend".equals(columnList.get(i))) {
+					System.out.println("2-1. webCrawlerTopologyLocal 트렌드 bolt 시작 ===========>");
+					topologyBuilder.setBolt(boltTrend, new WebCrawlerBolt_Trend(),4).shuffleGrouping(spout);
 
-		for (int i = 0; i < columnList.size(); i++) {
-			// 실검/ 뉴스여부에 따라
-			// 실검
-			if("trend".equals(columnList.get(i))) {
-				System.out.println("2-1. webCrawlerTopologyLocal 트렌드 bolt 시작 ===========>");
-				topologyBuilder.setBolt(boltTrend, new WebCrawlerBolt_Trend(),4).shuffleGrouping(spout);
+					System.out.println("3-1. webCrawlerTopologyLocal 서치 트렌드  워드 bolt 시작 ===========>");
 
-				System.out.println("3-1. webCrawlerTopologyLocal 서치 트렌드  워드 bolt 시작 ===========>");
-				topologyBuilder.setBolt(boltSearchWord, new WebCrawlerBoltSearchWord(requestDataSet),1).shuffleGrouping(boltTrend);
-			}else if("news".equals(columnList.get(i))) {
-				System.out.println("2-2. webCrawlerTopologyLocal 뉴스  bolt 시작 ===========>");
-				topologyBuilder.setBolt(boltNews, new WebCrawlerBolt_News(),4).shuffleGrouping(spout);
+				}else if("news".equals(columnList.get(i))) {
+					System.out.println("2-2. webCrawlerTopologyLocal 뉴스  bolt 시작 ===========>");
+					topologyBuilder.setBolt(boltNews, new WebCrawlerBolt_News(),4).shuffleGrouping(spout);
 
-				System.out.println("3-2. webCrawlerTopologyLocal 서치 뉴스  워드 bolt 시작 ===========>");
-				topologyBuilder.setBolt(boltSearchWord, new WebCrawlerBoltSearchWord(requestDataSet),1).shuffleGrouping(boltNews);
+					System.out.println("3-2. webCrawlerTopologyLocal 서치 뉴스  워드 bolt 시작 ===========>");
+//					topologyBuilder.setBolt(boltSearchWord, new WebCrawlerBoltSearchWord(requestDataSet),1).shuffleGrouping(boltNews);
+				}
+
 			}
-
+			topologyBuilder.setBolt(boltSearchWord, new WebCrawlerBoltSearchWord(requestDataSet),1).shuffleGrouping(boltTrend).shuffleGrouping(boltNews);
 		}
 
 		//알람방법 여부에 따라
 		List<String> alaramList = (ArrayList<String>) requestDataSet.get("alarm");
-		for (int i = 0; i < alaramList.size(); i++) {
-			// 알람리스트
-			if("sms".equals(alaramList.get(i))) {
-				System.out.println("4-1. webCrawlerTopologyLocal 알람 SMS bolt 시작 ===========>");
-				topologyBuilder.setBolt(boltSMS, new WebCrawlerBolt_SMS(),8).shuffleGrouping(boltSearchWord);
-//				topologyBuilder.setBolt(boltSMS+"2", new WebCrawlerBolt_SMS(),1).shuffleGrouping("boltSearchWord2");
-			}else if("mail".equals(alaramList.get(i))) {
-				System.out.println("4-2. webCrawlerTopologyLocal 알람 Email bolt 시작 ===========>");
-				topologyBuilder.setBolt(boltEMAIL, new WebCrawlerBolt_Email(),8).shuffleGrouping(boltSearchWord);
-			}else {
-				System.out.println("4-3. webCrawlerTopologyLocal 알람  ARS bolt 시작 ===========>");
-				topologyBuilder.setBolt(boltARS, new WebCrawlerBolt_Ars(),8).shuffleGrouping(boltSearchWord);
-			}
+		System.out.println("alaramList.size() >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+alaramList.size());
+		if( alaramList.size() > 0 ) {
+			for (int i = 0; i < alaramList.size(); i++) {
+				// 알람리스트
+				if("sms".equals(alaramList.get(i))) {
+					System.out.println("4-1. webCrawlerTopologyLocal 알람 SMS bolt 시작 ===========>");
+					topologyBuilder.setBolt(boltSMS, new WebCrawlerBolt_SMS(),8).shuffleGrouping(boltSearchWord);
+	//				topologyBuilder.setBolt(boltSMS+"2", new WebCrawlerBolt_SMS(),1).shuffleGrouping("boltSearchWord2");
+				}else if("mail".equals(alaramList.get(i))) {
+					System.out.println("4-2. webCrawlerTopologyLocal 알람 Email bolt 시작 ===========>");
+					topologyBuilder.setBolt(boltEMAIL, new WebCrawlerBolt_Email(),8).shuffleGrouping(boltSearchWord);
+				}else {
+					System.out.println("4-3. webCrawlerTopologyLocal 알람  ARS bolt 시작 ===========>");
+					topologyBuilder.setBolt(boltARS, new WebCrawlerBolt_Ars(),8).shuffleGrouping(boltSearchWord);
+				}
 
-			}
+				}
+		}
 //		topologyBuilder.setBolt(countBolt, new WebCrawlerWordCountBolt()).fieldsGrouping(bolt, new Fields("keyword"));
 
 

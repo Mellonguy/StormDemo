@@ -55,11 +55,13 @@ public class WebCrawlerBolt_SMS extends BaseRichBolt{
 
     @Override
     public void cleanup() {
-        System.out.println("------- FINAL COUNT -------");
-        for (String key: this.sendSMS.keySet()) {
-            System.out.println(key + ": " + this.sendSMS.get(key));
+        if(!sendSMS.isEmpty()) {
+        	System.out.println("-------SMS 발송-------");
+	        for (String key: this.sendSMS.keySet()) {
+	            System.out.println(key + ": " + this.sendSMS.get(key));
+	        }
         }
-        System.out.println("---------------------------");
+        System.out.println("-------------------------");
     }
 
 

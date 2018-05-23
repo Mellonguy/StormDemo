@@ -10,9 +10,7 @@
 package com.storm.demo;
 
 import java.io.IOException;
-import java.util.Arrays;
 
-import org.apache.storm.shade.org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -34,11 +32,11 @@ public class test {
 		String name = "";
 		Document contents = null;
 		try {
-			contents = Jsoup.connect("http://www.naver.com").get();
-			String[] sb = (contents.select("span.ah_k").text()).split(" ");
-			String cc = Arrays.toString(sb);
-		System.out.println(cc);
-			System.out.println( StringUtils.countMatches(cc, "기은세") );
+			contents = Jsoup.connect("http://news.nate.com").get();
+//			String[] sb = (contents.select("span.ah_k").text()).split(" ");
+//			String cc = Arrays.toString(sb);
+		System.out.println(contents.text());
+//			System.out.println( StringUtils.countMatches(cc, "기은세") );
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

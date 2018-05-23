@@ -80,13 +80,13 @@ public class WebCrawlerBolt_News extends BaseRichBolt{
 
 		// 뉴스 검색
 		if("naver".equals(siteName)){
-			data = Jsoup.connect("http://news.naver.com").get();;
+			data = Jsoup.connect("http://news.naver.com").get();
 		}else if("daum".equals(siteName)){
-			data = Jsoup.connect("http://media.daum.net").get();;
+			data = Jsoup.connect("http://media.daum.net").get();
 		}else if("nate".equals(siteName)){
-			data = Jsoup.connect("http://news.nate.com").get();;
+			data = Jsoup.connect("http://news.nate.com").get();
 		}else {
-			data = Jsoup.connect("http://news.zum.com").get();;
+			data = Jsoup.connect("http://news.zum.com").get();
 		}
 
 		System.out.println("getTrendsContents siteName : "+siteName);

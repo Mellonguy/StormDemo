@@ -1,5 +1,6 @@
 package com.storm.demo.example.webcrawler;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.storm.task.OutputCollector;
@@ -13,6 +14,8 @@ import org.springframework.context.annotation.Configuration;
 public class WebCrawlerBolt_Ars extends BaseRichBolt{
 
 	private Map<String, String> sendARS = null;
+	private OutputCollector collector;
+	int x = 0;
 
     @Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
@@ -26,6 +29,8 @@ public class WebCrawlerBolt_Ars extends BaseRichBolt{
 	public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
 		System.out.println( "===============WebCrawlerBolt_Ars prepare===============");
 //		this.sendARS = new HashMap<String, String>();
+		this.sendARS = new HashMap<String, String>();
+		this.collector = collector;
 	}
 
 
@@ -36,19 +41,32 @@ public class WebCrawlerBolt_Ars extends BaseRichBolt{
 	public void execute(Tuple tuple) {
 		System.out.println( "===============WebCrawlerBolt_Ars execute===============");
 
+		System.out.println(x++ + ">>>>>>tuple.getValues()>>>>>>>>>>>>>>>"+tuple.getFields() + ": "+tuple.getValues());
 		String siteName = tuple.getStringByField("siteName");
 		String column = tuple.getStringByField("column");
+		String searchWord = tuple.getStringByField("searchWord");
+		int count = tuple.getIntegerByField("count");
 
-		this.sendARS.put(siteName, column);
+		sendARS.put("siteName", siteName);
+		sendARS.put("column", column);
+		sendARS.put("searchWord", searchWord);
+		sendARS.put("count", String.valueOf(count));
+
+//		System.out.println( x++ +" ===============WebCrawlerBolt_SMS execute==============="+siteName +" : "+column+" : "+searchWord+" : "+count);
+		collector.ack(tuple);
 
 	}
 
     @Override
     public void cleanup() {
-        System.out.println("------- FINAL COUNT -------");
-        for (String key: this.sendARS.keySet()) {
-            System.out.println(key + ": " + this.sendARS.get(key));
-        }
+
+    	 if(!sendARS.isEmpty()) {
+          	System.out.println("-------ARS 발송-------");
+
+	        for (String key: this.sendARS.keySet()) {
+	            System.out.println(key + ": " + this.sendARS.get(key));
+	        }
+    	 }
         System.out.println("---------------------------");
     }
 
