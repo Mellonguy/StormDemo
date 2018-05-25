@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
@@ -50,14 +51,15 @@ public class WebCrawlerSpout extends BaseRichSpout {
 		System.out.println( "===============WebCrawlerSpout nextTuple===============");
 		JSONArray ja = getRawContents(mapData);
 		JSONObject jo;
+		UUID msgId = UUID.randomUUID();
 
 		for (int i = 0; i < ja.length(); i++) {
 
 			try {
 				jo = ja.getJSONObject(i);
 
-			this.collector.emit(new Values( jo.get("siteName"), jo.get("contents")));
-			System.out.println("3. WebCrawlerSpout nextTuple >>>>>>>>>>>>>>>>>>>>>> "+ jo.get("siteName"));
+			this.collector.emit(new Values( jo.get("siteName"), jo.get("contents")),msgId);
+			System.out.println("3. WebCrawlerSpout nextTuple >>>>>>>>>>>>>>>>>>>>>> "+ jo.get("siteName")+" :"+ msgId);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -123,6 +125,7 @@ public class WebCrawlerSpout extends BaseRichSpout {
 
 		return jsonArray;
 	}
+
 
 
 }

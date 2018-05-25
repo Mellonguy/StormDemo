@@ -34,7 +34,6 @@ public class WebCrawlerTopologyLocal {
 		TopologyBuilder topologyBuilder = new TopologyBuilder();
 		Config config = new Config();
 		config.setDebug(false);
-//		config.put(Config.TOPOLOGY_SUBPROCESS_TIMEOUT_SECS, tickTupleFreqSecs);
 //		config.setMaxSpoutPending(1000);
 		// Spout 시작
 		System.out.println("1. webCrawlerTopologyLocal spout 시작 ===========>");
@@ -43,6 +42,8 @@ public class WebCrawlerTopologyLocal {
 
 		List<String> columnList = (ArrayList<String>) requestDataSet.get("Column");
 		System.out.println("columnList.size() >>>>>>>>>>>>>>>>>>"+ columnList.size());
+		boolean trenYN =false;
+		boolean newsYN =false;
 		if( columnList.size() > 0 ) {
 			for (int i = 0; i < columnList.size(); i++) {
 				// 실검/ 뉴스여부에 따라
@@ -52,6 +53,7 @@ public class WebCrawlerTopologyLocal {
 					topologyBuilder.setBolt(boltTrend, new WebCrawlerBolt_Trend(),4).shuffleGrouping(spout);
 
 					System.out.println("3-1. webCrawlerTopologyLocal 서치 트렌드  워드 bolt 시작 ===========>");
+					trenYN =true;
 
 				}else if("news".equals(columnList.get(i))) {
 					System.out.println("2-2. webCrawlerTopologyLocal 뉴스  bolt 시작 ===========>");
@@ -59,10 +61,21 @@ public class WebCrawlerTopologyLocal {
 
 					System.out.println("3-2. webCrawlerTopologyLocal 서치 뉴스  워드 bolt 시작 ===========>");
 //					topologyBuilder.setBolt(boltSearchWord, new WebCrawlerBoltSearchWord(requestDataSet),1).shuffleGrouping(boltNews);
+					newsYN=true;
 				}
 
 			}
-			topologyBuilder.setBolt(boltSearchWord, new WebCrawlerBoltSearchWord(requestDataSet),1).shuffleGrouping(boltTrend).shuffleGrouping(boltNews);
+
+			if(trenYN && newsYN) {
+				topologyBuilder.setBolt(boltSearchWord, new WebCrawlerBoltSearchWord(requestDataSet),1).shuffleGrouping(boltTrend).shuffleGrouping(boltNews);
+			}
+			if(trenYN && !newsYN) {
+				topologyBuilder.setBolt(boltSearchWord, new WebCrawlerBoltSearchWord(requestDataSet),1).shuffleGrouping(boltTrend);
+			}
+			if(!trenYN && newsYN) {
+				topologyBuilder.setBolt(boltSearchWord, new WebCrawlerBoltSearchWord(requestDataSet),1).shuffleGrouping(boltNews);
+			}
+
 		}
 
 		//알람방법 여부에 따라
@@ -103,8 +116,8 @@ public class WebCrawlerTopologyLocal {
 
         LocalCluster cluster = new LocalCluster();
         cluster.submitTopology(stormProps.getTopologyName(), config, topologyBuilder.createTopology());
-        Utils.sleep(1000);
-        try { Thread.sleep(1000*sleepTime); } catch (InterruptedException e) { } // waiting 10s
+        Utils.sleep(5000);
+//        try { Thread.sleep(1000*sleepTime); } catch (InterruptedException e) { } // waiting 10s
         cluster.killTopology(stormProps.getTopologyName());
 //        cluster.shutdown();
 
