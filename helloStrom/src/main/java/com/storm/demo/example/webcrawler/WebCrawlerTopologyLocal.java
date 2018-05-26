@@ -34,6 +34,7 @@ public class WebCrawlerTopologyLocal {
 		TopologyBuilder topologyBuilder = new TopologyBuilder();
 		Config config = new Config();
 		config.setDebug(false);
+		config.setMessageTimeoutSecs(1); //토폴로지 메시지 전달이 모두 완료되면 멈추는 타임아웃 디폴트 30s 
 //		config.setMaxSpoutPending(1000);
 		// Spout 시작
 		System.out.println("1. webCrawlerTopologyLocal spout 시작 ===========>");
