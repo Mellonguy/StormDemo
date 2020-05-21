@@ -14,6 +14,6 @@ public class WebCrawlerApplication {
 	public static void main(String[] args) throws ClientProtocolException, IOException {
 		SpringApplication.run(WebCrawlerApplication.class, args);
 //		crawlerData() ;
-/*testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest*/
+
 	}
 }
